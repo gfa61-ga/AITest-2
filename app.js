@@ -15,21 +15,21 @@ function shuffleArray(array) {
 class QuizApp {
     constructor() {
         this.chapters = [
-            { number: 1, title: "Εισαγωγή στην Τεχνητή Νοημοσύνη", questions: 24, file: "test_kefalaio_1.json" },
-            { number: 2, title: "Διασύνδεση AI με Άλλες Τεχνολογίες", questions: 29, file: "test_kefalaio_2.json" },
-            { number: 3, title: "Η Αξία των Δεδομένων για την AI", questions: 26, file: "test_kefalaio_3.json" },
-            { number: 4, title: "Αλγόριθμοι και Μοντέλα Μηχανικής Μάθησης", questions: 29, file: "test_kefalaio_4.json" },
-            { number: 5, title: "Νευρωνικά Δίκτυα και Βαθιά Μάθηση", questions: 27, file: "test_kefalaio_5.json" },
-            { number: 6, title: "Ανάπτυξη και Εκπαίδευση Μοντέλων AI", questions: 29, file: "test_kefalaio_6.json" },
-            { number: 7, title: "Natural Language Processing (NLP)", questions: 38, file: "test_kefalaio_7.json" },
-            { number: 8, title: "Computer Vision", questions: 27, file: "test_kefalaio_8.json" },
-            { number: 9, title: "Ρομποτική και Αυτονομία", questions: 28, file: "test_kefalaio_9.json" },
-            { number: 10, title: "Ηθικά και Νομικά Ζητήματα AI", questions: 28, file: "test_kefalaio_10.json" },
-            { number: 11, title: "AI στο Marketing", questions: 46, file: "test_kefalaio_11.json" },
-            { number: 12, title: "AI στην Υγεία", questions: 35, file: "test_kefalaio_12.json" },
-            { number: 13, title: "Conversational AI και Personal Assistants", questions: 34, file: "test_kefalaio_13.json" },
-            { number: 14, title: "AI στις Επιχειρήσεις", questions: 35, file: "test_kefalaio_14.json" },
-            { number: 15, title: "Υλοποίηση και Ενσωμάτωση AI", questions: 29, file: "test_kefalaio_15.json" }
+            { number: 1, title: "Εισαγωγή στην Τεχνητή Νοημοσύνη", questions: 41, file: "test_kefalaio_1.json" },
+            { number: 2, title: "Διασύνδεση AI με Άλλες Τεχνολογίες", questions: 51, file: "test_kefalaio_2.json" },
+            { number: 3, title: "Η Αξία των Δεδομένων για την AI", questions: 41, file: "test_kefalaio_3.json" },
+            { number: 4, title: "Αλγόριθμοι και Μοντέλα Μηχανικής Μάθησης", questions: 30, file: "test_kefalaio_4.json" },
+            { number: 5, title: "Νευρωνικά Δίκτυα και Βαθιά Μάθηση", questions: 40, file: "test_kefalaio_5.json" },
+            { number: 6, title: "Ανάπτυξη και Εκπαίδευση Μοντέλων AI", questions: 40, file: "test_kefalaio_6.json" },
+            { number: 7, title: "Natural Language Processing (NLP)", questions: 25, file: "test_kefalaio_7.json" },
+            { number: 8, title: "Computer Vision", questions: 25, file: "test_kefalaio_8.json" },
+            { number: 9, title: "Ρομποτική και Αυτονομία", questions: 25, file: "test_kefalaio_9.json" },
+            { number: 10, title: "Ηθικά και Νομικά Ζητήματα AI", questions: 25, file: "test_kefalaio_10.json" },
+            { number: 11, title: "AI στο Marketing", questions: 25, file: "test_kefalaio_11.json" },
+            { number: 12, title: "AI στην Υγεία", questions: 25, file: "test_kefalaio_12.json" },
+            { number: 13, title: "Conversational AI και Personal Assistants", questions: 25, file: "test_kefalaio_13.json" },
+            { number: 14, title: "AI στις Επιχειρήσεις", questions: 24, file: "test_kefalaio_14.json" },
+            { number: 15, title: "Υλοποίηση και Ενσωμάτωση AI", questions: 25, file: "test_kefalaio_15.json" }
         ];
         
         this.currentChapter = null;
