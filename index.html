@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Τεστ Πολλαπλών Επιλογών - Τεχνητή Νοημοσύνη</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Main Page View -->
+    <div id="main-view" class="view active">
+        <div class="container">
+            <header class="main-header">
+                <h1>Τεστ Πολλαπλών Επιλογών - Τεχνητή Νοημοσύνη</h1>
+                <p class="subtitle">Εκτενή Τεστ με 464 Συνολικές Ερωτήσεις</p>
+                <p class="description">Επιλέξτε ένα κεφάλαιο για να ξεκινήσετε το τεστ</p>
+            </header>
+
+            <div class="summary-stats">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">464</span>
+                        <span class="stat-label">Σύνολο Ερωτήσεων</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">30.9</span>
+                        <span class="stat-label">Μέσος Όρος ανά Κεφάλαιο</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24</span>
+                        <span class="stat-label">Ελάχιστες Ερωτήσεις</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">46</span>
+                        <span class="stat-label">Περισσότερες Ερωτήσεις</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tests-container">
+                <table class="tests-table" id="tests-table">
+                    <thead>
+                        <tr>
+                            <th>Κεφάλαιο</th>
+                            <th>Τίτλος</th>
+                            <th>Ερωτήσεις</th>
+                            <th>Ενέργεια</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tests-tbody">
+                        <!-- Chapters will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Page View -->
+    <div id="quiz-view" class="view">
+        <div class="container">
+            <header class="quiz-header">
+                <div class="quiz-nav">
+                    <button id="back-to-home" class="btn btn--outline">
+                        ← Επιστροφή στην Αρχική
+                    </button>
+                    <div class="progress-info">
+                        <span id="progress-text">Ερώτηση 1 από 40</span>
+                    </div>
+                </div>
+                <div class="chapter-info">
+                    <h2 id="chapter-title">Κεφάλαιο 1: Εισαγωγή στην Τεχνητή Νοημοσύνη</h2>
+                </div>
+            </header>
+
+            <div class="quiz-container">
+                <div id="loading-spinner" class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Φόρτωση ερωτήσεων...</p>
+                </div>
+
+                <div id="quiz-content" class="quiz-content hidden">
+                    <div class="question-section">
+                        <div class="question-number">
+                            <span id="question-number">Ερώτηση 1</span>
+                        </div>
+                        <div class="question-text">
+                            <p id="question-text">Φόρτωση ερώτησης...</p>
+                        </div>
+                    </div>
+
+                    <div class="answers-section">
+                        <div class="choices" id="choices-container">
+                            <button class="choice-btn" data-choice="A">
+                                <span class="choice-letter">A</span>
+                                <span class="choice-text" id="choice-A"></span>
+                            </button>
+                            <button class="choice-btn" data-choice="B">
+                                <span class="choice-letter">B</span>
+                                <span class="choice-text" id="choice-B"></span>
+                            </button>
+                            <button class="choice-btn" data-choice="C">
+                                <span class="choice-letter">C</span>
+                                <span class="choice-text" id="choice-C"></span>
+                            </button>
+                            <button class="choice-btn" data-choice="D">
+                                <span class="choice-letter">D</span>
+                                <span class="choice-text" id="choice-D"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="navigation-section">
+                        <div class="nav-buttons">
+                            <button id="prev-question" class="btn btn--secondary" disabled>
+                                ← Προηγούμενη Ερώτηση
+                            </button>
+                            <button id="next-question" class="btn btn--primary" disabled>
+                                Επόμενη Ερώτηση →
+                            </button>
+                            <button id="submit-answers" class="btn btn--primary hidden">
+                                Υποβολή Απαντήσεων
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error-message" class="error-message hidden">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Σφάλμα φόρτωσης</h3>
+                    <p>Δεν ήταν δυνατή η φόρτωση των ερωτήσεων. Παρακαλώ δοκιμάστε ξανά.</p>
+                    <div class="error-actions">
+                        <button id="retry-load" class="btn btn--primary">Επανάληψη</button>
+                        <button id="back-to-home-error" class="btn btn--outline">Επιστροφή στην Αρχική</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Αποτελέσματα Τεστ</h3>
+                <button id="close-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="score-summary">
+                    <div class="score-circle">
+                        <span id="score-percentage">0%</span>
+                    </div>
+                    <p class="score-text">
+                        Βαθμολογία: <span id="score-fraction">0/40</span>
+                    </p>
+                </div>
+                
+                <div class="results-details">
+                    <h4>Λεπτομέρειες Απαντήσεων</h4>
+                    <div id="results-list" class="results-list">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="retry-test" class="btn btn--secondary">Επανάληψη Τεστ</button>
+                <button id="return-home" class="btn btn--primary">Επιστροφή στην Αρχική</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
