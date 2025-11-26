@@ -1,173 +1,457 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Τεστ Πολλαπλών Επιλογών - Τεχνητή Νοημοσύνη</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>AI Quiz Advanced - Νέες Λειτουργίες</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <style>
+    /* -- Εκσυγχρονισμένο Design, dark/light support -- */
+    :root {
+      --blue: #2563eb;
+      --blue-dark: #1e40af;
+      --bg-lighter: #f0f9ff;
+      --gray: #f3f4f6;
+      --border: #e5e7eb;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --font-main: "Inter", "Segoe UI", system-ui, sans-serif;
+    }
+    html, body {background: var(--bg-lighter); margin: 0; font-family: var(--font-main); color: var(--blue-dark);}
+    h1, h2 {color: var(--blue-dark);}
+    main {max-width: 760px; margin: 0 auto;}
+    .box {background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid var(--border); padding: 1.5em;margin-bottom: 2em;}
+    .option-row {margin:1em 0;display:flex;flex-wrap:wrap;align-items:center;gap:1em;}
+    .cta-row {margin:2.5em 0 1em 0;display:flex;align-items:center;gap:1em;}
+    .btn {background: var(--blue); color: white; padding: 0.7em 2.1em; font-size: 1.13em; font-weight:700; border:none; border-radius: 8px; transition: background .2s; cursor: pointer;}
+    .btn:hover {background: var(--blue-dark);}
+    select, .count-field {font-size:1.09em; border-radius:7px; border:1px solid #e5e7eb;padding: .3em .6em;}
+    @media (max-width:600px){
+      main {padding: .8em;}
+      .option-row, .cta-row {flex-direction:column;align-items:stretch;}
+    }
+    /* Κεντρικός πίνακας */
+    table {width:100%;background: var(--gray);}
+    th,td{padding:.55em 8px;border: 1px solid var(--border);}
+    th{background:var(--blue);color:white;}
+    tr:nth-child(even) td{background: #f8fafc;}
+    .test-type-label{display:inline-block; font-size:.97em; border-radius:6px; background:#d1fae5;color:var(--blue-dark);padding:.12em .6em;vertical-align:middle;}
+    /* Quiz Section */
+    .quiz-view {margin-top:1.5em;}
+    .q-panel{background: white; border:1.5px solid var(--border);border-radius:12px;box-shadow:0 1px 6px #c7c7c73a;padding:1.6em;}
+    .progress{font-size:1.09em; margin-bottom:1em;}
+    .question-title{font-size:1.07em; font-weight:600; margin:0 0 1em 0;}
+    .choice-btn{display:block;padding:.8em;margin-bottom:.5em;background:#eff6ff;border-radius:7px;font-size:1.08em;border:1.5px solid #c3cdea;cursor:pointer;transition:background .15s;}
+    .choice-btn.selected, .choice-btn:hover{background:var(--blue);color:white;border-color:var(--blue);}
+    .next-btn, .finish-btn {margin:0 0.4em;padding:.6em 1.5em; font-size:1.09em;}
+    .disabled{filter:grayscale(.8);opacity:0.7;cursor:not-allowed;}
+    /* Results, εμπλουτισμένο styling: */
+    .score-summary{margin-bottom:1.6em;}
+    .score-label{font-size:1.13em;font-weight:600;}
+    .score-fraction{font-size:1.6em; font-weight:800; color:var(--blue-dark);}
+    .score-grade{font-size:.98em;}
+    .results-list{margin-top:1.7em;}
+    .result-item {margin-bottom:1.2em;background:#f9fafb;padding:1em 1.4em 1em .9em;border-radius:8px;border-left:5px solid #dbeafe;}
+    .result-item.correct{border-color:var(--green);}
+    .result-item.incorrect{border-color:var(--red);}
+    .result-header{display:flex;align-items:center;gap:.5em;}
+    .result-number{font-size:1.05em;}
+    .result-status{font-size:1.1em;}
+    .result-question{font-size:1.09em;font-weight:500;margin:.7em 0;}
+    .user-answer{background:var(--gray);padding:.4em;border-radius:6px;display:inline-block;}
+    .answer-choice{margin-right:.4em;}
+    .correct-answer{margin-top:.45em;background:#d1fae5;padding:.36em .6em;border-radius:.5em;display:inline-block;}
+    .actions{margin-top:1.7em;display:flex;gap:1.3em;}
+    /* Loader */
+    .loader {border:6px solid #e5e7eb;border-top: 6px solid var(--blue);border-radius:50%;width:42px;height:42px;animation:spin 1.1s linear infinite;margin: 2em auto;}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    /* Error/Empty states */
+    .error-box{max-width:400px;margin:1.5em auto;background:#fee2e2;color:#991b1b;padding:1.4em;border-radius:11px;}
+    .hidden{display:none;}
+  </style>
 </head>
 <body>
-    <!-- Main Page View -->
-    <div id="main-view" class="view active">
-        <div class="container">
-            <header class="main-header">
-                <h1>Τεστ Πολλαπλών Επιλογών - Τεχνητή Νοημοσύνη</h1>
-                <p class="subtitle">Εκτενή Τεστ με 467 Συνολικές Ερωτήσεις</p>
-                <p class="description">Επιλέξτε ένα κεφάλαιο για να ξεκινήσετε το τεστ</p>
-            </header>
-
-            <div class="summary-stats">
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-number">467</span>
-                        <span class="stat-label">Σύνολο Ερωτήσεων</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">31.1</span>
-                        <span class="stat-label">Μέσος Όρος ανά Κεφάλαιο</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">24</span>
-                        <span class="stat-label">Ελάχιστες Ερωτήσεις</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">51</span>
-                        <span class="stat-label">Περισσότερες Ερωτήσεις</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tests-container">
-                <table class="tests-table" id="tests-table">
-                    <thead>
-                        <tr>
-                            <th>Κεφάλαιο</th>
-                            <th>Τίτλος</th>
-                            <th>Ερωτήσεις</th>
-                            <th>Ενέργεια</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tests-tbody">
-                        <!-- Chapters will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<main>
+  <h1>Εφαρμογή AI Quiz &mdash; Advanced</h1>
+  <div class="box" id="main-menu">
+    <h2>Ξεκινήστε Quiz</h2>
+    <div class="option-row">
+      <label for="chapter-select">20 τυχαίες ερωτήσεις από κεφάλαιο:</label>
+      <select id="chapter-select">
+        <option value="1">Κεφάλαιο 1</option>
+        <option value="2">Κεφάλαιο 2</option>
+        <option value="3">Κεφάλαιο 3</option>
+        <option value="4">Κεφάλαιο 4</option>
+        <option value="5">Κεφάλαιο 5</option>
+        <option value="6">Κεφάλαιο 6</option>
+        <option value="7">Κεφάλαιο 7</option>
+        <option value="8">Κεφάλαιο 8</option>
+        <option value="9">Κεφάλαιο 9</option>
+        <option value="10">Κεφάλαιο 10</option>
+        <option value="11">Κεφάλαιο 11</option>
+        <option value="12">Κεφάλαιο 12</option>
+        <option value="13">Κεφάλαιο 13</option>
+        <option value="14">Κεφάλαιο 14</option>
+        <option value="15">Κεφάλαιο 15</option>
+      </select>
+      <button id="start-20-random" class="btn">20 τυχαίες ερωτήσεις</button>
     </div>
+    <div class="option-row">
+  <button id="start-60-random" class="btn">60 τυχαίες απ&#39; όλα τα κεφάλαια (αναλογική κατανομή)</button>
+</div>
 
-    <!-- Quiz Page View -->
-    <div id="quiz-view" class="view">
-        <div class="container">
-            <header class="quiz-header">
-                <div class="quiz-nav">
-                    <button id="back-to-home" class="btn btn--outline">
-                        ← Επιστροφή στην Αρχική
-                    </button>
-                    <div class="progress-info">
-                        <span id="progress-text">Ερώτηση 1 από 40</span>
-                    </div>
-                </div>
-                <div class="chapter-info">
-                    <h2 id="chapter-title">Κεφάλαιο 1: Εισαγωγή στην Τεχνητή Νοημοσύνη</h2>
-                </div>
-            </header>
-
-            <div class="quiz-container">
-                <div id="loading-spinner" class="loading-spinner">
-                    <div class="spinner"></div>
-                    <p>Φόρτωση ερωτήσεων...</p>
-                </div>
-
-                <div id="quiz-content" class="quiz-content hidden">
-                    <div class="question-section">
-                        <div class="question-number">
-                            <span id="question-number">Ερώτηση 1</span>
-                        </div>
-                        <div class="question-text">
-                            <p id="question-text">Φόρτωση ερώτησης...</p>
-                        </div>
-                    </div>
-
-                    <div class="answers-section">
-                        <div class="choices" id="choices-container">
-                            <button class="choice-btn" data-choice="A">
-                                <span class="choice-letter">A</span>
-                                <span class="choice-text" id="choice-A"></span>
-                            </button>
-                            <button class="choice-btn" data-choice="B">
-                                <span class="choice-letter">B</span>
-                                <span class="choice-text" id="choice-B"></span>
-                            </button>
-                            <button class="choice-btn" data-choice="C">
-                                <span class="choice-letter">C</span>
-                                <span class="choice-text" id="choice-C"></span>
-                            </button>
-                            <button class="choice-btn" data-choice="D">
-                                <span class="choice-letter">D</span>
-                                <span class="choice-text" id="choice-D"></span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="navigation-section">
-                        <div class="nav-buttons">
-                            <button id="prev-question" class="btn btn--secondary" disabled>
-                                ← Προηγούμενη Ερώτηση
-                            </button>
-                            <button id="next-question" class="btn btn--primary" disabled>
-                                Επόμενη Ερώτηση →
-                            </button>
-                            <button id="submit-answers" class="btn btn--primary hidden">
-                                Υποβολή Απαντήσεων
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="error-message" class="error-message hidden">
-                    <div class="error-icon">⚠️</div>
-                    <h3>Σφάλμα φόρτωσης</h3>
-                    <p>Δεν ήταν δυνατή η φόρτωση των ερωτήσεων. Παρακαλώ δοκιμάστε ξανά.</p>
-                    <div class="error-actions">
-                        <button id="retry-load" class="btn btn--primary">Επανάληψη</button>
-                        <button id="back-to-home-error" class="btn btn--outline">Επιστροφή στην Αρχική</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="option-row">
+  <label for="chapter-select-all">Όλες τις ερωτήσεις από κεφάλαιο:</label>
+  <select id="chapter-select-all">
+    <option value="1">Κεφάλαιο 1</option>
+    <option value="2">Κεφάλαιο 2</option>
+    <option value="3">Κεφάλαιο 3</option>
+    <option value="4">Κεφάλαιο 4</option>
+    <option value="5">Κεφάλαιο 5</option>
+    <option value="6">Κεφάλαιο 6</option>
+    <option value="7">Κεφάλαιο 7</option>
+    <option value="8">Κεφάλαιο 8</option>
+    <option value="9">Κεφάλαιο 9</option>
+    <option value="10">Κεφάλαιο 10</option>
+    <option value="11">Κεφάλαιο 11</option>
+    <option value="12">Κεφάλαιο 12</option>
+    <option value="13">Κεφάλαιο 13</option>
+    <option value="14">Κεφάλαιο 14</option>
+    <option value="15">Κεφάλαιο 15</option>
+  </select>
+  <button id="start-all-chapter" class="btn">Όλες τις ερωτήσεις</button>
+</div>
+    <div class="cta-row">
+      <span class="test-type-label" id="current-mode"></span>
     </div>
-
-    <!-- Results Modal -->
-    <div id="results-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Αποτελέσματα Τεστ</h3>
-                <button id="close-modal" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="score-summary">
-                    <div class="score-circle">
-                        <span id="score-percentage">0%</span>
-                    </div>
-                    <p class="score-text">
-                        Βαθμολογία: <span id="score-fraction">0/40</span>
-                    </p>
-                </div>
-                
-                <div class="results-details">
-                    <h4>Λεπτομέρειες Απαντήσεων</h4>
-                    <div id="results-list" class="results-list">
-                        <!-- Results will be populated here -->
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="retry-test" class="btn btn--secondary">Επανάληψη Τεστ</button>
-                <button id="return-home" class="btn btn--primary">Επιστροφή στην Αρχική</button>
-            </div>
-        </div>
+    <h3>Κεφάλαια &amp; πλήθος ερωτήσεων</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>Κεφάλαιο</th><th>Αριθμός ερωτ.</th></tr>
+      </thead>
+      <tbody id="chapters-table"></tbody>
+    </table>
+  </div>
+  
+  <!-- Quiz panel -->
+  <div id="quiz-panel" class="box hidden">
+    <div id="quiz-meta">
+      <span id="progress-txt"></span>
     </div>
+    <div class="q-panel">
+      <div class="question-title" id="question-title"></div>
+      <div id="choices-area"></div>
+    </div>
+    <div class="actions">
+      <button id="prev-question" class="btn" type="button">Προηγούμενη</button>
+      <button id="next-question" class="btn" type="button">Επόμενη</button>
+      <button id="finish-quiz" class="btn" type="button">Υποβολή</button>
+    </div>
+    <div id="quiz-loader" class="loader hidden"></div>
+  </div>
+  
+  <!-- Results modal -->
+  <div id="results-modal" class="box hidden" aria-modal="true" role="dialog">
+    <h2>Αποτελέσματα Test</h2>
+    <div class="score-summary">
+      <span class="score-label">Βαθμολογία:</span>
+      <span class="score-fraction" id="score-fraction"></span>
+      <span id="score-percentage"></span>
+      <span class="score-grade" id="score-grade"></span>
+    </div>
+    <div class="results-list" id="results-list"></div>
+    <div class="actions">
+      <button id="retry-test" class="btn">Ξανά το ίδιο τεστ</button>
+      <button id="return-home" class="btn">Επιστροφή στο μενού</button>
+    </div>
+  </div>
+  
+  <!-- Loader -->
+  <div class="loader hidden" id="main-loader"></div>
+  <!-- Error -->
+  <div class="error-box hidden" id="error-view"></div>
+</main>
+<script>
+// === Utility ===
+function shuffleArray(array) {
+    const a = array.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
 
-    <script src="app.js"></script>
+// === Μεταδεδομένα κεφαλαίων ===
+const CHAPTERS = [
+  { number: 1, title: "Εισαγωγή στην Τεχνητή Νοημοσύνη", file: "test_kefalaio_1.json", count: 41 },
+  { number: 2, title: "Διασύνδεση AI με Άλλες Τεχνολογίες", file: "test_kefalaio_2.json", count: 51 },
+  { number: 3, title: "Η Αξία των Δεδομένων για την AI", file: "test_kefalaio_3.json", count: 41 },
+  { number: 4, title: "Αλγόριθμοι και Μοντέλα Μηχανικής Μάθησης", file: "test_kefalaio_4.json", count: 30 },
+  { number: 5, title: "Νευρωνικά Δίκτυα και Βαθιά Μάθηση", file: "test_kefalaio_5.json", count: 40 },
+  { number: 6, title: "Ανάπτυξη και Εκπαίδευση Μοντέλων AI", file: "test_kefalaio_6.json", count: 40 },
+  { number: 7, title: "Natural Language Processing (NLP)", file: "test_kefalaio_7.json", count: 25 },
+  { number: 8, title: "Computer Vision", file: "test_kefalaio_8.json", count: 25 },
+  { number: 9, title: "Ρομποτική και Αυτονομία", file: "test_kefalaio_9.json", count: 25 },
+  { number: 10, title: "Ηθικά και Νομικά Ζητήματα AI", file: "test_kefalaio_10.json", count: 25 },
+  { number: 11, title: "AI στο Marketing", file: "test_kefalaio_11.json", count: 25 },
+  { number: 12, title: "AI στην Υγεία", file: "test_kefalaio_12.json", count: 25 },
+  { number: 13, title: "Conversational AI και Personal Assistants", file: "test_kefalaio_13.json", count: 25 },
+  { number: 14, title: "AI στις Επιχειρήσεις", file: "test_kefalaio_14.json", count: 24 },
+  { number: 15, title: "Υλοποίηση και Ενσωμάτωση AI", file: "test_kefalaio_15.json", count: 25 }
+];
+
+
+// === Global Quiz State ===
+let appState = {
+    mode: null,         // null | "20random" | "60all"
+    chapter: null,
+    questions: [],
+    currentIdx: 0,
+    userAnswers: [],
+    quizTitle: "",
+    originalSource: [], // full pool for repeat test
+};
+
+// === DOM Elements ===
+const $mainMenu = document.getElementById('main-menu');
+const $quizPanel = document.getElementById('quiz-panel');
+const $resultsModal = document.getElementById('results-modal');
+const $mainLoader = document.getElementById('main-loader');
+const $errorView = document.getElementById('error-view');
+const $chaptersTable = document.getElementById('chapters-table');
+const $currentMode = document.getElementById('current-mode');
+
+// -- Load chapters table
+function renderChaptersList() {
+    $chaptersTable.innerHTML = "";
+    CHAPTERS.forEach(chap =>
+      $chaptersTable.innerHTML += `<tr>
+        <td>${chap.number}</td>
+        <td>${chap.title}</td>
+        <td>${chap.count}</td>
+      </tr>`
+    );
+}
+
+renderChaptersList();
+
+// --- MODE SELECTION ---
+
+document.getElementById('start-20-random').onclick = async () => {
+  const chapterNum = parseInt(document.getElementById('chapter-select').value,10);
+  const chapter = CHAPTERS.find(c=>c.number===chapterNum);
+  if (!chapter) return;
+  $mainMenu.classList.add('hidden'); $mainLoader.classList.remove('hidden');
+  const data = await fetchQuizJson(chapter.file,true);
+  $mainLoader.classList.add('hidden');
+  if (!data) return showError("Αδυναμία φόρτωσης ερωτήσεων για το κεφάλαιο!");
+  appState.mode = "20random";
+  appState.chapter = chapter;
+  appState.quizTitle = `20 τυχαίες ερωτήσεις από το ${chapter.title}`;
+  appState.originalSource = shuffleArray(data);
+  appState.questions = appState.originalSource.slice(0,20).map(shuffleChoices);
+  appState.currentIdx = 0;
+  appState.userAnswers = Array(appState.questions.length).fill(null);
+  $currentMode.textContent = appState.quizTitle;
+  showQuizPanel();
+};
+
+document.getElementById('start-60-random').onclick = async () => {
+  $mainMenu.classList.add('hidden'); $mainLoader.classList.remove('hidden');
+  // 1. Fetch all chapters
+  let all = [], allCounts=[], questionMap={}, total=0;
+  for (const chap of CHAPTERS) {
+    let data = await fetchQuizJson(chap.file,true);
+    if (!data) continue;
+    allCounts.push(data.length);
+    total += data.length;
+    questionMap[chap.number] = data;
+  }
+  // 2. Calculate how many questions per chapter
+  let perCh = [], acc=0;
+  for (let i=0;i<CHAPTERS.length;i++) {
+    let qn = Math.round(allCounts[i]/total*60);
+    perCh.push(qn); acc += qn;
+  }
+  // Adjust to exactly 60
+  while(acc < 60) { perCh[acc%perCh.length]++; acc++;}
+  while(acc > 60) { let idx = perCh.findIndex(x=>x>0); perCh[idx]--; acc--;}
+  // 3. Select & shuffle
+  let collected = [];
+  CHAPTERS.forEach((ch,ix)=>{
+    let qset = shuffleArray(questionMap[ch.number]||[]);
+    collected = collected.concat(qset.slice(0, perCh[ix]));
+  });
+  collected = shuffleArray(collected);
+  $mainLoader.classList.add('hidden');
+  appState.mode = "60all";
+  appState.chapter = null;
+  appState.quizTitle = "60 τυχαίες ερωτήσεις από όλα τα κεφάλαια";
+  appState.originalSource = collected.slice();
+  appState.questions = collected.slice(0,60).map(shuffleChoices);
+  appState.currentIdx = 0;
+  appState.userAnswers = Array(appState.questions.length).fill(null);
+  $currentMode.textContent = appState.quizTitle;
+  showQuizPanel();
+};
+
+document.getElementById('start-all-chapter').onclick = async () => {
+  const chapterNum = parseInt(document.getElementById('chapter-select-all').value, 10);
+  const chapter = CHAPTERS.find(c => c.number === chapterNum);
+  if (!chapter) return;
+  
+  $mainMenu.classList.add('hidden');
+  $mainLoader.classList.remove('hidden');
+  
+  const data = await fetchQuizJson(chapter.file, true);
+  
+  $mainLoader.classList.add('hidden');
+  if (!data) return showError("Αδυναμία φόρτωσης ερωτήσεων για το κεφάλαιο!");
+  
+  appState.mode = "all-chapter";
+  appState.chapter = chapter;
+  appState.quizTitle = `Όλες τις ερωτήσεις - ${chapter.title} (${data.length} ερωτήσεις)`;
+  appState.originalSource = shuffleArray(data);
+  appState.questions = appState.originalSource.map(shuffleChoices);
+  appState.currentIdx = 0;
+  appState.userAnswers = Array(appState.questions.length).fill(null);
+  $currentMode.textContent = appState.quizTitle;
+  showQuizPanel();
+};
+
+function showError(msg){
+  $errorView.classList.remove('hidden');
+  $errorView.textContent = msg;
+  $quizPanel.classList.add('hidden');
+  $mainLoader.classList.add('hidden');
+  $mainMenu.classList.remove('hidden');
+}
+
+function showQuizPanel() {
+  $mainMenu.classList.add('hidden');
+  $resultsModal.classList.add('hidden');
+  $quizPanel.classList.remove('hidden');
+  renderQuestion();
+  updateProgress();
+  document.getElementById('quiz-loader').classList.add('hidden');
+}
+
+// --- QUIZ PLAYBACK ---
+function renderQuestion() {
+  let q = appState.questions[appState.currentIdx];
+  document.getElementById('question-title').textContent = q.question;
+  let html = "";
+  ["A","B","C","D"].forEach(letter=>{
+    html+= `<button class="choice-btn${appState.userAnswers[appState.currentIdx]===letter?" selected":""}" data-choice="${letter}"><span class="answer-choice">${letter}</span> ${q.choices[letter]}</button>`;
+  });
+  document.getElementById('choices-area').innerHTML = html;
+  document.getElementById('prev-question').disabled = appState.currentIdx===0;
+  document.getElementById('next-question').disabled = appState.currentIdx===appState.questions.length-1;
+  document.getElementById('finish-quiz').style.display = appState.userAnswers.includes(null)?"none":"inline-block";
+}
+
+function updateProgress(){
+  document.getElementById('progress-txt').textContent = `Ερώτηση ${appState.currentIdx+1} από ${appState.questions.length}`;
+}
+
+document.getElementById('choices-area').onclick = e=>{
+  let btn = e.target.closest('button.choice-btn');
+  if (!btn) return;
+  let letter = btn.getAttribute('data-choice');
+  appState.userAnswers[appState.currentIdx] = letter;
+  renderQuestion();
+  updateProgress();
+}
+
+document.getElementById('prev-question').onclick = ()=>{
+  if (appState.currentIdx>0) appState.currentIdx--;
+  renderQuestion();
+  updateProgress();
+}
+document.getElementById('next-question').onclick = ()=>{
+  if (appState.currentIdx<appState.questions.length-1) appState.currentIdx++;
+  renderQuestion();
+  updateProgress();
+}
+document.getElementById('finish-quiz').onclick = ()=> showResults();
+
+document.getElementById('retry-test').onclick = ()=>{
+  // Επαναφόρτωση ίδιου pool (τo shuffle πολυ πιθανό αλλάζει και τη σειρά!)
+  appState.questions = shuffleArray(appState.originalSource).slice(0, appState.questions.length).map(shuffleChoices);
+  appState.userAnswers = Array(appState.questions.length).fill(null);
+  appState.currentIdx = 0;
+  showQuizPanel();
+};
+document.getElementById('return-home').onclick = ()=>{
+  $resultsModal.classList.add('hidden');
+  $mainMenu.classList.remove('hidden');
+  $currentMode.textContent = "";
+};
+
+// --- Shuffle choices in each question
+function shuffleChoices(question) {
+    const correct = question.choices[question.answer];
+    const arr = ["A","B","C","D"].map(letter=>({letter,text:question.choices[letter]}));
+    const shuffled = shuffleArray(arr);
+    const newChoices = {};
+    let newAnswer = "A";
+    shuffled.forEach((c,i)=>{
+        newChoices[String.fromCharCode(65+i)] = c.text;
+        if (c.text===correct) newAnswer=String.fromCharCode(65+i);
+    });
+    return {question: question.question, choices: newChoices, answer: newAnswer};
+}
+
+// -- Βασική fetch με error handling
+async function fetchQuizJson(file, suppressError){
+  try{
+    const res = await fetch(file);
+    if (!res.ok) throw new Error("Not found: "+file);
+    const data = await res.json();
+    if(!Array.isArray(data) || !data.length) throw new Error("Empty json: "+file);
+    return data;
+  }catch(e){
+    if (!suppressError) showError("Αποτυχία φόρτωσης quiz αρχείου!");
+    return null;
+  }
+}
+
+// --- Αποτελέσματα
+function showResults(){
+  let score = 0;
+  appState.questions.forEach((q,i)=>{
+    if(appState.userAnswers[i]===q.answer) score++;
+  });
+  document.getElementById('score-fraction').textContent = `${score}/${appState.questions.length}`;
+  let pct = Math.round(100*score/appState.questions.length);
+  document.getElementById('score-percentage').textContent = pct + "%";
+  let grade = "";
+  if (pct>=90) grade="Άριστα! 🎉";
+  else if (pct>=75) grade="Πολύ Καλά! 👏";
+  else if (pct>=60) grade="Καλά 👍";
+  else grade = "Χρειάζεται Βελτίωση 📚";
+  document.getElementById('score-grade').textContent = grade;
+  // Λίστα αναλυτικών αποτελεσμάτων
+  let html = "";
+  appState.questions.forEach((q,i)=>{
+    const user = appState.userAnswers[i];
+    const correct = q.answer;
+    const correctText = q.choices[correct];
+    const userText = user ? q.choices[user]||"" : "(καμία απάντηση)";
+    let ok = user===correct;
+    html+= `<div class="result-item ${ok?"correct":"incorrect"}">
+      <div class="result-header"><span class="result-number">Ερώτηση ${i+1}</span> <span class="result-status">${ok?"✓ Σωστό":"✗ Λάθος"}</span></div>
+      <div class="result-question"><strong>Ερώτηση:</strong> ${q.question}</div>
+      <div class="user-answer"><strong>Η απάντησή σας:</strong> <span class="answer-choice">${user||"-"}</span> <span class="answer-text">${userText}</span></div>
+      ${ok?"":`<div class="correct-answer"><strong>Σωστή απάντηση:</strong> <span class="answer-choice">${correct}</span> <span class="answer-text">${correctText}</span></div>`}
+    </div>`;
+  });
+  document.getElementById('results-list').innerHTML = html;
+  document.getElementById('quiz-panel').classList.add('hidden');
+  document.getElementById('results-modal').classList.remove('hidden');
+}
+</script>
 </body>
 </html>
